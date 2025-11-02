@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Najot Ta'lim- Ro'yxatdan O'tish</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <span class="logo-bolt">FN31</span>
+                <span class="logo-ai">Group</span>
+            </div>
+
+            <h2 class="auth-title">Ro'yxatdan O'tish</h2>
+            <p class="auth-subtitle">Yangi hisob yarating va boshlansin</p>
+
+            <form class="auth-form" id="register-form" method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="register-name" class="form-label">To'liq Ism</label>
+                    <input type="text" id="register-name" name="username" class="form-input" placeholder="Ismingiz" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="register-email" class="form-label">Email</label>
+                    <input type="email" id="register-email" name="email" class="form-input" placeholder="email@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="register-password" class="form-label">Parol</label>
+                    <input type="password" id="register-password" name="password" class="form-input" placeholder="••••••••" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="register-confirm-password" class="form-label">Parolni Tasdiqlash</label>
+                    <input type="password" id="register-confirm-password" name="password2" class="form-input" placeholder="••••••••" required>
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <p style="color:red; margin-bottom:10px;">{{ message }}</p>
+                    {% endfor %}
+                {% endif %}
+
+                <button type="submit" class="auth-submit-btn">
+                    <span>Ro'yxatdan O'tish</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </button>
+
+                <div class="auth-divider"><span>yoki</span></div>
+                <p class="auth-switch">
+                    Hisobingiz bormi? <a href="{% url 'login' %}" class="auth-link">Kirish</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

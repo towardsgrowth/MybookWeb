@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Najot Ta'lim{% endblock title %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-bolt">Najot Ta'lim</span>
+                <span class="logo-ai">Fergana</span>
+            </div>
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="{% url 'index' %}" class="nav-link">Kitoblar</a></li>
+                <li><a href="{% url 'categories' %}" class="nav-link">Kategoriyalar</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'profile' %}" class="nav-link">Profil</a></li>
+                    <li><a href="{% url 'logout' %}" class="nav-link">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}" class="nav-link">Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    <div class="messages-wrapper">
+        {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Main content -->
+    <main>
+        {% block content %}{% endblock content %}
+    </main>
+
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

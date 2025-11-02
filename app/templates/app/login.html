@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Najot Ta'lim - Login</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        /* Xabar style */
+        .message {
+            padding: 10px 20px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .message.success { background-color: #4CAF50; color: white; }
+        .message.error { background-color: #f44336; color: white; }
+    </style>
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <span class="logo-bolt">FN31</span>
+                <br><span class="logo-ai">Group</span></br>
+            </div>
+
+            <h2 class="auth-title">Tizimga Kirish</h2>
+            <p class="auth-subtitle">Davom etish uchun hisobingizga kiring</p>
+
+            {% if messages %}
+                <div id="messages-container">
+                    {% for message in messages %}
+                        <div class="message {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                <script>
+                    // 3 soniyadan keyin xabarni yashirish
+                    setTimeout(() => {
+                        const container = document.getElementById('messages-container');
+                        if(container) container.style.display = 'none';
+                    }, 1000);
+                </script>
+            {% endif %}
+
+            <form class="auth-form" id="login-form" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="login-email" class="form-label">Email</label>
+                    <input type="email" id="login-email" name="email" class="form-input" placeholder="email@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password" class="form-label">Parol</label>
+                    <input type="password" id="login-password" name="password" class="form-input" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="auth-submit-btn">
+                    <span>Kirish</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </button>
+
+                <div class="auth-divider"><span>yoki</span></div>
+                <p class="auth-switch">
+                    Hisobingiz yo'qmi? <a href="{% url 'register' %}" class="auth-link">Ro'yxatdan o'tish</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ book.title }} - Kitob Tafsilotlari</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .comment-section { margin-top: 30px; }
+        .comment { background: #f0f8ff; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .comment-user { font-weight: bold; color: #87ceeb; }
+        .comment-time { font-size: 0.8em; color: #555; margin-left: 5px; }
+        .comment-form { margin-top: 20px; }
+        .comment-form textarea { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; resize: vertical; }
+        .comment-form button { background: #87ceeb; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-bolt">Azamov Asrorbek</span>
+                <span class="logo-ai">Production</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="{% url 'index' %}" class="nav-link">Kitoblar</a></li>
+                <li><a href="{% url 'categories' %}" class="nav-link">Kategoriyalar</a></li>
+            </ul>
+        </div>
+    </nav>
+
+
+<main class="book-detail-page">
+    <div class="detail-container">
+        <div class="detail-image">
+            {% if book.book_pic %}
+                <img src="{{ book.book_pic.url }}" alt="{{ book.title }}">
+            {% else %}
+                <img src="{% static 'images/default-book.jpg' %}" alt="No Image">
+            {% endif %}
+        </div>
+
+        <div class="detail-info">
+            <h1 class="detail-title">{{ book.title }}</h1>
+
+            <div class="detail-meta">
+                <p><strong style="color:#87ceeb;">Muallif:</strong> {{ book.author }}</p>
+                <p><strong style="color:#87ceeb;">Kategoriya:</strong> {{ book.category.name }}</p>
+            </div>
+
+            <div class="detail-description-section">
+                <div class="description-container">
+                    <p>
+                        <span style="color: #87ceeb; font-weight: 600;">Kitob tafsiloti:</span>
+                        <span style="color: #fff5ee;">{{ book.description }}</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Comment section -->
+                <div class="comment-section">
+                    <h2 style="color:#87ceeb;">Kommentariyalar</h2>
+
+                    {% for comment in comments %}
+                        <div class="comment" style="background:#1a1a1a; color:#f5f5f5; padding:12px; margin-bottom:12px; border-radius:8px; border:1px solid #87ceeb;">
+                            <span class="comment-user" style="font-weight:bold; color:#87ceeb;">
+                                {% if comment.user %}
+                                    {{ comment.user.username }}
+                                {% else %}
+                                    Anonymous
+                                {% endif %}
+                            </span>
+                            <span class="comment-time" style="font-size:0.8em; color:#ccc; margin-left:6px;">{{ comment.created_at|date:"d M Y H:i" }}</span>
+                            <p style="margin-top:8px;">{{ comment.content }}</p>
+                        </div>
+                    {% empty %}
+                        <p style="color:#ccc;">Hozircha hech qanday comment yo‘q.</p>
+                    {% endfor %}
+
+                    <div class="comment-form" style="margin-top:20px;">
+                        <form method="POST">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <button type="submit" style="background:#87ceeb; color:white; border:none; padding:8px 16px; border-radius:5px; cursor:pointer;">Comment qoldirish</button>
+                        </form>
+                    </div>
+                </div>
+
+        </div>
+    </div>
+
+    <div class="back-button">
+        <a href="{% url 'index' %}" class="details-btn">Orqaga</a>
+    </div>
+</main>
+
+<script src="{% static 'js/script.js' %}"></script>
+
+
+</body>
+</html>
