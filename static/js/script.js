@@ -353,3 +353,89 @@ function showNotification(message, type) {
         }, 400);
     }, 3000);
 }
+
+// Carousel funksiyasi
+const carousel = document.querySelector('.carousel');
+let scrollPosition = 0;
+
+setInterval(() => {
+  scrollPosition += 300;
+  if (scrollPosition >= carousel.scrollWidth - carousel.clientWidth) {
+    scrollPosition = 0;
+  }
+  carousel.scrollTo({
+    left: scrollPosition,
+    behavior: 'smooth'
+  });
+}, 3000);
+// --- Avtomatik Carousel ---
+const carousel = document.getElementById('auto-carousel');
+let index = 0;
+
+function autoSlide() {
+    const items = document.querySelectorAll('.carousel-item');
+    index++;
+    if (index >= items.length) index = 0;
+    carousel.style.transform = `translateX(-${index * 100}%)`;
+}
+
+// Har 3 soniyada o‘zgarib turadi
+setInterval(autoSlide, 3000);
+document.addEventListener("DOMContentLoaded", function () {
+  const carousel = document.getElementById("carousel");
+  const items = document.querySelectorAll(".carousel-item");
+  let index = 0;
+
+  function slide() {
+    index++;
+    if (index >= items.length) {
+      index = 0;
+    }
+    carousel.style.transform = `translateX(-${index * 100}%)`;
+  }
+
+  setInterval(slide, 3000); // har 3 soniyada almashadi
+});
+// --- Modal funksiyasi ---
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("bookModal");
+  const modalImg = document.getElementById("modalImg");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalAuthor = document.getElementById("modalAuthor");
+  const modalDesc = document.getElementById("modalDesc");
+  const closeBtn = document.querySelector(".close");
+
+  const bookCards = document.querySelectorAll(".book-card");
+
+  bookCards.forEach(card => {
+    const btn = card.querySelector(".detail-btn");
+    btn.addEventListener("click", e => {
+      e.preventDefault();
+      modal.style.display = "block";
+      modalImg.src = card.dataset.img;
+      modalTitle.textContent = card.dataset.title;
+      modalAuthor.textContent = "Muallif: " + card.dataset.author;
+      modalDesc.textContent = card.dataset.desc;
+    });
+  });
+
+  // Modalni yopish
+  closeBtn.onclick = () => modal.style.display = "none";
+  window.onclick = e => {
+    if (e.target === modal) modal.style.display = "none";
+  };
+});
+<script>
+const carousel = document.getElementById('booksCarousel');
+const items = document.querySelectorAll('#booksCarousel .carousel-item');
+let currentIndex = 0;
+
+function showNextSlide() {
+    currentIndex++;
+    if (currentIndex >= items.length) currentIndex = 0;
+    carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
+}
+
+// Har 3 soniyada avtomatik siljish
+setInterval(showNextSlide, 3000);
+</script>

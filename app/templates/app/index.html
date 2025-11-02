@@ -1,27 +1,21 @@
 {% extends 'app/base.html' %}
 {% load static %}
-{% block title %}Kitoblar - Najot Ta'lim{% endblock title %}
+{% block title %}Najot Ta'lim - Barcha kitoblar{% endblock title %}
 
 {% block content %}
-<div class="books-section">
-    <h1 class="section-title">Kitoblar Kolleksiyasi</h1>
-    <div class="books-grid" id="books-grid">
-        {% for book in books %}
-        <div class="book-card">
-            <div class="book-image">
-                {% if book.book_pic %}
-                    <img src="{{ book.book_pic.url }}" alt="{{ book.category }}">
-                {% else %}
-                    <img src="{% static 'images/default-book.jpg' %}" alt="No Image">
-                {% endif %}
-            </div>
-            <div class="book-info">
-                <h3 class="book-title">{{ book.title }}</h3>
-                <p class="book-description">{{ book.description }}</p>
-                <a href="{% url 'book_detail' book.id %}" class="details-btn">Batafsil</a>
-            </div>
-        </div>
-        {% endfor %}
+<h2 class="section-title">Barcha kitoblar</h2>
+
+<div class="books-grid">
+    {% for book in books %}
+    <div class="book-card">
+        <img src="{{ book.book_pic.url }}" alt="{{ book.title }}">
+        <h3>{{ book.title }}</h3>
+        <p class="author-name">Muallif: {{ book.author.name }}</p>
+        <p class="description">{{ book.description|truncatewords:20 }}</p>
+        <a href="{% url 'book_detail' book.pk %}" class="detail-btn">Batafsil</a>
     </div>
+    {% empty %}
+    <p>Hozircha kitoblar mavjud emas.</p>
+    {% endfor %}
 </div>
 {% endblock content %}

@@ -1,0 +1,108 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}Najot Ta'lim - Yozuvchilar{% endblock title %}
+
+{% block content %}
+
+
+<!-- 🔹 Carousel -->
+<div class="text-carousel-container">
+    <div class="text-carousel">
+        <span>Najot Ta'lim</span>
+        <span>Najot Ta'lim</span>
+        <span>Najot Ta'lim</span>
+        <span>Najot Ta'lim</span> <!-- duplicate element for seamless loop -->
+    </div>
+</div>
+
+
+
+<!-- 🔹 Yozuvchilar -->
+<h2 class="section-title">Yozuvchilar</h2>
+<div class="authors-section">
+    {% for author in authors %}
+    <div class="author-card">
+        <img src="{{ author.author_pic.url }}" alt="{{ author.name }} {{ author.surname }}">
+        <h3>{{ author.name }} {{ author.surname }}</h3>
+        <!-- "→" tugma -->
+        <a href="{% url 'author_books' author.id %}" class="author-btn">→</a>
+    </div>
+    {% endfor %}
+</div>
+
+
+<!-- 🔹 Kitoblar -->
+<h2 class="section-title">Kitoblar</h2>
+<div class="books-section">
+    {% for book in books %}
+    <div class="book-card" data-title="{{ book.title }}" data-author="{{ book.author.name }} {{ book.author.surname }}" data-desc="{{ book.description }}" data-img="{{ book.book_pic.url }}">
+        <img src="{{ book.book_pic.url }}" alt="{{ book.title }}">
+        <h3>{{ book.title }}</h3>
+        <p><strong>Muallif:</strong> {{ book.author.name }} {{ book.author.surname }}</p>
+        <a href="{% url 'book_detail' book.pk %}" class="detail-btn">Batafsil</a>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 🔹 Modal -->
+<div id="bookModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <img id="modalImg" src="" alt="">
+        <h2 id="modalTitle"></h2>
+        <p id="modalAuthor"></p>
+        <p id="modalDesc"></p>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+// --- Modal funksiyasi ---
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("bookModal");
+  const modalImg = document.getElementById("modalImg");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalAuthor = document.getElementById("modalAuthor");
+  const modalDesc = document.getElementById("modalDesc");
+  const closeBtn = document.querySelector(".close");
+
+  const bookCards = document.querySelectorAll(".book-card");
+
+  bookCards.forEach(card => {
+    const btn = card.querySelector(".detail-btn");
+    btn.addEventListener("click", e => {
+      e.preventDefault();
+      modal.style.display = "block";
+      modalImg.src = card.dataset.img;
+      modalTitle.textContent = card.dataset.title;
+      modalAuthor.textContent = "Muallif: " + card.dataset.author;
+      modalDesc.textContent = card.dataset.desc;
+    });
+  });
+
+  closeBtn.onclick = () => modal.style.display = "none";
+  window.onclick = e => {
+    if (e.target === modal) modal.style.display = "none";
+  };
+});
+
+// --- Automatic Carousel ---
+const carousel = document.getElementById("booksCarousel");
+let scrollAmount = 0;
+function autoScroll() {
+    scrollAmount += 2; // har harakatdagi piksel
+    if(scrollAmount >= carousel.scrollWidth - carousel.clientWidth) {
+        scrollAmount = 0;
+    }
+    carousel.scrollLeft = scrollAmount;
+}
+let scrollInterval = setInterval(autoScroll, 30);
+
+// To'xtatish hoverda
+carousel.addEventListener("mouseover", () => clearInterval(scrollInterval));
+carousel.addEventListener("mouseout", () => scrollInterval = setInterval(autoScroll, 30));
+</script>
+{% endblock extra_js %}

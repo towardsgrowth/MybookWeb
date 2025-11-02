@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .models import Book, Author, Category, Comment
+from .models import Book, Author, Category, Comment, Profile
 from django.shortcuts import render, get_object_or_404, redirect
 from .forms import CommentForm
 from django.contrib.auth.decorators import login_required
@@ -108,35 +108,38 @@ def book_detail(request, book_id):
 # ----------------------------------------------------Profile------------------------------------------------------------------
 @login_required
 def profile_view(request):
+
     user = request.user
 
-    # Agar foydalanuvchining profili yo‘q bo‘lsa — avtomatik yaratish
-    from .models import Profile
     if not hasattr(user, 'profile'):
         Profile.objects.create(user=user)
 
+    profile= user.profile
     if request.method == 'POST':
         full_name = request.POST.get('profile-fullname')
         email = request.POST.get('profile-email-input')
         phone = request.POST.get('profile-phone')
         location = request.POST.get('profile-location')
         bio = request.POST.get('profile-bio')
+        avatar = request.FILES.get('profile-avatar')
 
+        if not email:
+            messages.error(request, "Email maydoni bo‘sh bo‘lishi mumkin emas!")
+            return redirect('profile')
         user.first_name = full_name
         user.email = email
         user.save()
 
-        profile = user.profile
         profile.phone = phone
         profile.location = location
         profile.bio = bio
+        if avatar:
+            profile.avatar = avatar  # Agar rasm kiritilgan bo‘lsa, saqlash
         profile.save()
 
         messages.success(request, "Profil muvaffaqiyatli yangilandi!")
         return redirect('profile')
-
     return render(request, 'app/profile.html', {'user': user})
-
 
 @login_required
 def change_password(request):
@@ -145,8 +148,8 @@ def change_password(request):
         new_password = request.POST.get('new-password')
         confirm_password = request.POST.get('confirm-new-password')
 
-        user = request.user
 
+        user = request.user
         if user.check_password(current_password):
             if new_password == confirm_password:
                 user.set_password(new_password)
@@ -158,4 +161,26 @@ def change_password(request):
         else:
             messages.error(request, "Joriy parol noto‘g‘ri!")
 
-    return redirect('profile')
+        return redirect('profile')
+# -------------------------------------------------Authors-------------------------------------------------------------
+def authors(request):
+    authors = Author.objects.all()
+    books = Book.objects.all()
+    return render(request, 'app/authors.html', {'authors': authors, 'books': books})
+
+def author_books(request, author_id):
+    author = get_object_or_404(Author, id=author_id)
+    books = Book.objects.filter(author=author)
+    return render(request, 'app/author_books.html', {'author': author, 'books': books})
+
+@login_required
+def add_comment(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.book = book
+            comment.user = request.user
+            comment.save()
+    return redirect('author_books', author_id=book.author.id)

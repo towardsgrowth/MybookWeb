@@ -18,6 +18,7 @@ class Author(models.Model):
     surname = models.TextField(verbose_name="familiya")
     age = models.IntegerField(verbose_name="yosh")
     created_at = models.DateTimeField(auto_now_add=True)
+    author_pic = models.ImageField(upload_to="authors/", null=True, blank=True)
 
 
     def __str__(self):
@@ -47,14 +48,17 @@ class Comment(models.Model):
     def __str__(self):
         return f'{self.user.username if self.user else "Anonymous"} - {self.book.title}'
 
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
-    location = models.CharField(max_length=100, blank=True, null=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.user.username} profili"
+        return f"{self.user.username} Profile"
+
 
 # --- Signal: yangi foydalanuvchi yaratilganda profil ham yaratsin ---
 @receiver(post_save, sender=User)

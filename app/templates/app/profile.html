@@ -1,8 +1,6 @@
 {% load static %}
 {% load crispy_forms_tags %}
-
 <!DOCTYPE html>
-
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
@@ -10,31 +8,32 @@
     <title>Najot Ta'lim - Profil</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
-        /* Inline styles for comment section */
-        .user-comments-list {
-            list-style: none;
-            padding: 0;
-            margin-top: 10px;
-        }
-        .comment-item {
-            background: #f8f8f8;
-            border-radius: 8px;
-            padding: 10px 15px;
-            margin-bottom: 10px;
-        }
-        .comment-text {
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-        .comment-book {
-            font-size: 13px;
-            color: #555;
-            margin-bottom: 3px;
-        }
-        .comment-date {
-            font-size: 12px;
-            color: #999;
-        }
+        /* Inline styles for profile and comments */
+        .profile-container { max-width: 900px; margin: auto; padding: 20px; }
+        .profile-header { display: flex; gap: 20px; align-items: center; }
+        .profile-avatar-section { text-align: center; }
+        .profile-avatar { width: 120px; height: 120px; border-radius: 50%; background: #ddd; display: flex; justify-content: center; align-items: center; font-size: 50px; color: #555; overflow: hidden; }
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .change-avatar-btn { margin-top: 10px; padding: 5px 10px; cursor: pointer; }
+        .profile-info-section { flex: 1; }
+        .profile-name { font-size: 24px; margin-bottom: 5px; }
+        .profile-email { margin-bottom: 10px; }
+        .profile-stats { display: flex; gap: 20px; }
+        .stat-item { text-align: center; }
+        .profile-section { margin-top: 30px; }
+        .section-heading { font-size: 20px; margin-bottom: 15px; }
+        .profile-form { display: flex; flex-direction: column; gap: 15px; }
+        .form-row { display: flex; gap: 15px; }
+        .form-group { flex: 1; display: flex; flex-direction: column; }
+        .form-label { margin-bottom: 5px; }
+        .form-input, .form-textarea { padding: 8px; border: 1px solid #ccc; border-radius: 5px; width: 100%; }
+        .profile-save-btn { padding: 10px 15px; border: none; border-radius: 5px; background-color: #007bff; color: #fff; cursor: pointer; }
+        .profile-save-btn:hover { background-color: #0056b3; }
+        .user-comments-list { list-style: none; padding: 0; margin-top: 10px; }
+        .comment-item { background: #f8f8f8; border-radius: 8px; padding: 10px 15px; margin-bottom: 10px; }
+        .comment-text { font-size: 14px; margin-bottom: 5px; }
+        .comment-book { font-size: 13px; color: #555; margin-bottom: 3px; }
+        .comment-date { font-size: 12px; color: #999; }
     </style>
 </head>
 <body>
@@ -44,117 +43,109 @@
                 <span class="logo-bolt">Najot Ta'lim</span>
                 <span class="logo-ai">Fergana</span>
             </div>
-
-
-        <div class="menu-toggle" id="mobile-menu">
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="{% url 'index' %}" class="nav-link">Kitoblar</a></li>
+                <li><a href="{% url 'categories' %}" class="nav-link">Kategoriyalar</a></li>
+                <li><a href="{% url 'profile' %}" class="nav-link active">Profil</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'logout' %}" class="nav-link">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}" class="nav-link">Login</a></li>
+                {% endif %}
+            </ul>
         </div>
+    </nav>
 
-        <ul class="nav-menu" id="nav-menu">
-            <li><a href="{% url 'index' %}" class="nav-link">Kitoblar</a></li>
-            <li><a href="{% url 'categories' %}" class="nav-link">Kategoriyalar</a></li>
-            <li><a href="{% url 'profile' %}" class="nav-link active">Profil</a></li>
-
-            {% if user.is_authenticated %}
-            <li><a href="{% url 'logout' %}" class="nav-link">Logout</a></li>
-            {% else %}
-            <li><a href="{% url 'login' %}" class="nav-link">Login</a></li>
-            {% endif %}
-        </ul>
-    </div>
-</nav>
-
-
-<main class="profile-page">
-    <div class="profile-container">
-        <div class="profile-header">
-            <div class="profile-avatar-section">
-                <div class="profile-avatar" id="profile-avatar">
-                    <span id="avatar-letter">{{ user.first_name|default:"U"|slice:":1" }}</span>
+    <main class="profile-page">
+        <div class="profile-container">
+            <div class="profile-header">
+                <div class="profile-avatar-section">
+                    <div class="profile-avatar" id="profile-avatar">
+                        {% if user.profile.avatar %}
+                            <img src="{{ user.profile.avatar.url }}" alt="Avatar">
+                        {% else %}
+                            <span id="avatar-letter">{{ user.first_name|default:"U"|slice:":1" }}</span>
+                        {% endif %}
+                    </div>
+                    <form method="POST" enctype="multipart/form-data" style="margin-top:10px;">
+                        {% csrf_token %}
+                        <input type="file" name="profile-avatar" id="profile-avatar-input">
+                        <button type="submit" class="change-avatar-btn">Avatarni O'zgartirish</button>
+                    </form>
                 </div>
-                <button class="change-avatar-btn">Avatar O'zgartirish</button>
-            </div>
 
-            <div class="profile-info-section">
-                <h1 class="profile-name" id="profile-name">{{ user.username }}</h1>
-                <p class="profile-email" id="profile-email"><b>Gmail</b>: {{ user.email }}</p>
-                <div class="profile-stats">
-                    <div class="stat-item">
-                        <span class="stat-value">{{ user.comment_set.count }}</span>
-                        <span class="stat-label">Kommentlar</span>
+                <div class="profile-info-section">
+                    <h1 class="profile-name" id="profile-name">{{ user.username }}</h1>
+                    <p class="profile-email" id="profile-email"><b>Gmail:</b> {{ user.email }}</p>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-value">{{ user.comment_set.count }}</span>
+                            <span class="stat-label">Kommentlar</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="profile-content">
-            <div class="profile-section">
-                <h2 class="section-heading">Shaxsiy Ma'lumotlar</h2>
-                <form class="profile-form" method="POST" action="{% url 'profile' %}">
-                    {% csrf_token %}
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="profile-fullname" class="form-label">To'liq Ism</label>
-                            <input type="text" id="profile-fullname" name="profile-fullname" class="form-input" placeholder="Ismingiz" value="{{ user.get_full_name }}">
+            <div class="profile-content">
+                <div class="profile-section">
+                    <h2 class="section-heading">Shaxsiy Ma'lumotlar</h2>
+                    <form class="profile-form" method="POST" action="{% url 'profile' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profile-fullname" class="form-label">To'liq Ism</label>
+                                <input type="text" id="profile-fullname" name="profile-fullname" class="form-input" placeholder="Ismingiz" value="{{ user.get_full_name }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-email-input" class="form-label">Email</label>
+                                <input type="email" id="profile-email-input" name="profile-email-input" class="form-input" placeholder="email@example.com" value="{{ user.email }}" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profile-phone" class="form-label">Telefon</label>
+                                <input type="tel" id="profile-phone" name="profile-phone" class="form-input" placeholder="+998 90 123 45 67" value="{{ user.profile.phone }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-location" class="form-label">Manzil</label>
+                                <input type="text" id="profile-location" name="profile-location" class="form-input" placeholder="Shahar, Mamlakat" value="{{ user.profile.location }}">
+                            </div>
                         </div>
 
                         <div class="form-group">
-                            <label for="profile-email-input" class="form-label">Email</label>
-                            <input type="email" id="profile-email-input" name="profile-email-input" class="form-input" placeholder="email@example.com" value="{{ user.email }}">
+                            <label for="profile-bio" class="form-label">Bio</label>
+                            <textarea id="profile-bio" name="profile-bio" class="form-textarea" rows="4" placeholder="O'zingiz haqingizda qisqacha...">{{ user.profile.bio }}</textarea>
                         </div>
-                    </div>
 
-                    <div class="form-row">
+                        <button type="submit" class="profile-save-btn">O'zgarishlarni Saqlash</button>
+                    </form>
+                </div>
+
+                <div class="profile-section">
+                    <h2 class="section-heading">Parolni O'zgartirish</h2>
+                    <form class="profile-form" method="POST" action="{% url 'change_password' %}">
+                        {% csrf_token %}
                         <div class="form-group">
-                            <label for="profile-phone" class="form-label">Telefon</label>
-                            <input type="tel" id="profile-phone" name="profile-phone" class="form-input" placeholder="+998 90 123 45 67" value="{{ user.profile.phone }}">
+                            <label for="current-password" class="form-label">Joriy Parol</label>
+                            <input type="password" id="current-password" name="current-password" class="form-input" placeholder="••••••••">
                         </div>
-
                         <div class="form-group">
-                            <label for="profile-location" class="form-label">Manzil</label>
-                            <input type="text" id="profile-location" name="profile-location" class="form-input" placeholder="Shahar, Mamlakat" value="{{ user.profile.location }}">
+                            <label for="new-password" class="form-label">Yangi Parol</label>
+                            <input type="password" id="new-password" name="new-password" class="form-input" placeholder="••••••••">
                         </div>
-                    </div>
+                        <div class="form-group">
+                            <label for="confirm-new-password" class="form-label">Yangi Parolni Tasdiqlash</label>
+                            <input type="password" id="confirm-new-password" name="confirm-new-password" class="form-input" placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="profile-save-btn">Parolni Yangilash</button> </form> </div>
 
-                    <div class="form-group">
-                        <label for="profile-bio" class="form-label">Bio</label>
-                        <textarea id="profile-bio" name="profile-bio" class="form-textarea" rows="4" placeholder="O'zingiz haqingizda qisqacha...">{{ user.profile.bio }}</textarea>
-                    </div>
 
-                    <button type="submit" class="profile-save-btn">
-                        O'zgarishlarni Saqlash
-                    </button>
-                </form>
-            </div>
-
-            <div class="profile-section">
-                <h2 class="section-heading">Parolni O'zgartirish</h2>
-                <form class="profile-form" method="POST" action="{% url 'change_password' %}">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="current-password" class="form-label">Joriy Parol</label>
-                        <input type="password" id="current-password" name="current-password" class="form-input" placeholder="••••••••">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="new-password" class="form-label">Yangi Parol</label>
-                        <input type="password" id="new-password" name="new-password" class="form-input" placeholder="••••••••">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="confirm-new-password" class="form-label">Yangi Parolni Tasdiqlash</label>
-                        <input type="password" id="confirm-new-password" name="confirm-new-password" class="form-input" placeholder="••••••••">
-                    </div>
-
-                    <button type="submit" class="profile-save-btn">
-                        Parolni Yangilash
-                    </button>
-                </form>
-            </div>
-
-            <!-- User comments section -->
             <div class="profile-section">
                 <h2 class="section-heading">Siz yozgan kommentlar</h2>
                 {% if user.comment_set.exists %}
